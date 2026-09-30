@@ -204,10 +204,11 @@ unsafe extern "system" fn close_windows_callback(hwnd: HWND, lparam: LPARAM) -> 
     let state = &mut *(lparam.0 as *mut CloseRequest);
     let mut owner = 0u32;
     GetWindowThreadProcessId(hwnd, Some(&mut owner));
-    if owner == state.pid && IsWindowVisible(hwnd).as_bool() {
-        if PostMessageW(Some(hwnd), WM_CLOSE, WPARAM(0), LPARAM(0)).is_ok() {
-            state.sent += 1;
-        }
+    if owner == state.pid
+        && IsWindowVisible(hwnd).as_bool()
+        && PostMessageW(Some(hwnd), WM_CLOSE, WPARAM(0), LPARAM(0)).is_ok()
+    {
+        state.sent += 1;
     }
     // Keep enumerating.
     BOOL(1)
@@ -248,7 +249,13 @@ fn nt_process_control(name: &[u8]) -> Option<NtProcessControl> {
     unsafe {
         let ntdll = GetModuleHandleW(w!("ntdll.dll")).ok()?;
         let address = GetProcAddress(ntdll, PCSTR(name.as_ptr()))?;
-        Some(std::mem::transmute(address))
+        // SAFETY: the address comes from ntdll, which is a loaded, trusted module, and
+        // the symbol is one of the Nt*Process entry points that take a HANDLE and
+        // return a status code, matching NtProcessControl exactly.
+        Some(std::mem::transmute::<
+            unsafe extern "system" fn() -> isize,
+            NtProcessControl,
+        >(address))
     }
 }
 

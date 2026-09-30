@@ -18,7 +18,10 @@
 use std::time::{Duration, Instant};
 
 use crate::metrics::{display_name, Collector};
-use crate::model::{ControlAction, Snapshot};
+// ControlAction is only referenced by the Windows action self-test.
+#[cfg(windows)]
+use crate::model::ControlAction;
+use crate::model::Snapshot;
 use crate::platform;
 
 pub fn requested() -> bool {
@@ -349,6 +352,9 @@ fn exercise_actions(_snapshot: &Snapshot) -> i32 {
     1
 }
 
+/// Only the Windows action self-test calls this; on other targets the stub above
+/// reports that process control is unavailable.
+#[cfg_attr(not(windows), allow(dead_code))]
 fn check(name: &str, result: Result<(), String>, verify: impl FnOnce() -> bool) -> u32 {
     match result {
         Err(error) => {

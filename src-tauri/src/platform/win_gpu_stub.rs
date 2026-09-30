@@ -25,6 +25,9 @@ impl GpuSampler {
         &self.per_process
     }
 
+    /// The busiest engine, as (engine name, percent). Only the Windows sampler reads
+    /// the engine counters, so on other targets nothing calls this.
+    #[cfg_attr(not(windows), allow(dead_code))]
     pub fn engines(&self) -> Option<(String, f32)> {
         None
     }

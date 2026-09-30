@@ -75,6 +75,10 @@ struct RawProcess {
     run_time: u64,
 }
 
+/// One GPU adapter paired with the LUIDs of its engine instances. Named so the
+/// sampler's signatures stay readable.
+pub type AdapterLuids = Vec<(String, Vec<(i32, u32)>)>;
+
 impl Collector {
     pub fn new() -> Self {
         let mut inner = Inner {
@@ -97,7 +101,17 @@ impl Collector {
         inner.sample();
         Self { inner: Mutex::new(inner) }
     }
+}
 
+/// `Collector::new` is the only constructor, so this is exactly equivalent and keeps
+/// clippy's new-without-default lint satisfied.
+impl Default for Collector {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl Collector {
     /// Takes a fresh sample. Serialised: overlapping ticks would corrupt the deltas.
     pub fn sample(&self) -> Snapshot {
         match self.inner.lock() {
@@ -146,7 +160,7 @@ impl Collector {
     /// GPU introspection for the probe: each adapter with its LUIDs, plus the raw
     /// performance-counter instance names. Shares the running sampler rather than
     /// opening a second PDH query.
-    pub fn gpu_details(&self) -> (Vec<(String, Vec<(i32, u32)>)>, Vec<String>) {
+    pub fn gpu_details(&self) -> (AdapterLuids, Vec<String>) {
         let Ok(mut inner) = self.inner.lock() else {
             return (Vec::new(), Vec::new());
         };
@@ -638,7 +652,11 @@ mod tests {
         assert!(!snapshot.cpu.per_core.is_empty());
         // Our own process must be listed, and it owns threads.
         assert!(snapshot.processes.iter().any(|process| process.pid == std::process::id()));
-        assert!(snapshot.counts.threads > 0);
+        // Thread counts come from the Windows platform layer; the stub on other
+        // targets reports none, so only assert them where they are actually collected.
+        if platform::SUPPORTED {
+            assert!(snapshot.counts.threads > 0);
+        }
 
         for process in &snapshot.processes {
             assert!(
