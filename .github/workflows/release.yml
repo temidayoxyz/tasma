@@ -103,13 +103,14 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      # The changelog is read from the tag, so the tree has to be checked out here.
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
           merge-multiple: true
-      - name: Work out the tag
-        id: meta
-        run: echo "tag=${{ github.event.inputs.tag || github.ref_name }}" >> "$GITHUB_OUTPUT"
       - name: Create the release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -133,5 +134,5 @@ jobs:
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" artifacts/* --clobber
           else
-            gh release create "$TAG" --title "Tasma $TAG" --notes-file "$notes" --verify-tag artifacts/*
+            gh release create "$TAG" --title "Tasma $TAG" --notes-file "$notes" artifacts/*
           fi
