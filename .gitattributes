@@ -1,0 +1,14 @@
+# Normalise line endings in the repository so a Windows checkout and a Linux one
+# produce the same bytes. Text files are checked out with LF; the Windows tooling
+# (PowerShell scripts) is exempted so it stays readable in an editor.
+* text=auto eol=lf
+
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+*.png binary
+*.ico binary
+*.dmg binary
+*.msi binary
+*.AppImage binary
