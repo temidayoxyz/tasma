@@ -15,6 +15,7 @@
 
 import { api, isDesktop, mockAction, mockDetail } from "./api.js";
 import * as fmt from "./format.js";
+import { closeMenu, openMenu } from "./menu.js";
 import {
   COLUMNS,
   ROW_HEIGHT,
@@ -506,6 +507,7 @@ function openPriorityMenu(state) {
     items: PRIORITIES.map((level) => ({
       label: level,
       icon: "layers",
+      checked: process.priority === level,
       run: () => setPriority(state, level),
     })),
   });
@@ -534,61 +536,7 @@ async function runTask(state) {
   return run(state, isDesktop ? api.runTask(command) : mockAction(`run ${command}`));
 }
 
-/* ------------------------------------------------------ process context menu --
- * In 0.1.0 the menu lived here rather than in a shared component.
- */
-
-let dismissMenu = null;
-
-function clamp(value, min, max) {
-  return Math.max(min, Math.min(value, max));
-}
-
-function showMenu(state, items, heading, x, y) {
-  const menu = document.getElementById("ctx");
-  if (!menu || !items?.length) return;
-
-  menu.innerHTML =
-    `<div class="head">${escapeHtml(heading)}</div>` +
-    items
-      .map((item, index) =>
-        item.separator
-          ? '<div class="sep"></div>'
-          : `<button type="button" class="${item.danger ? "is-danger" : ""}" data-i="${index}"><svg><use href="#i-${item.icon || "activity"}"/></svg><span>${escapeHtml(item.label)}</span></button>`,
-      )
-      .join("");
-
-  menu.hidden = false;
-  menu.style.left = `${clamp(x, 8, window.innerWidth - menu.offsetWidth - 8)}px`;
-  menu.style.top = `${clamp(y, 8, window.innerHeight - menu.offsetHeight - 8)}px`;
-
-  const stop = () => {
-    menu.hidden = true;
-    menu.onclick = null;
-    dismissMenu = null;
-  };
-
-  menu.onclick = (event) => {
-    const button = event.target.closest("[data-i]");
-    if (!button) return;
-    const item = items[Number(button.dataset.i)];
-    stop();
-    item?.run?.();
-  };
-
-  dismissMenu = (event) => {
-    if (event.type === "keydown" && event.key !== "Escape") return;
-    if (event.type === "click" && event.target.closest("#ctx")) return;
-    stop();
-  };
-  document.addEventListener("click", dismissMenu, true);
-  document.addEventListener("keydown", dismissMenu, true);
-}
-
-function closeMenu() {
-  dismissMenu?.(new KeyboardEvent("keydown", { key: "NotEscape" }));
-}
-
+/* ------------------------------------------------------ process context menu -- */
 
 function openProcessMenu(state, x, y, options = {}) {
   const process = selected(state);
@@ -610,6 +558,7 @@ function openProcessMenu(state, x, y, options = {}) {
       {
         label: efficiencyOn ? "Turn off efficiency mode" : "Efficiency mode",
         icon: "bolt",
+        checked: efficiencyOn,
         run: () => act(state, "efficiency"),
       },
       { label: "Priority", icon: "layers", run: () => openPriorityMenu(state) },
@@ -629,7 +578,7 @@ function openProcessMenu(state, x, y, options = {}) {
       { label: "Details", icon: "activity", run: () => openDrawer(state) },
     ];
 
-  showMenu(state, items, options.title || `${appName(process)} · PID ${process.pid}`, x, y);
+  openMenu({ items, heading: options.title || `${appName(process)} · PID ${process.pid}`, x, y });
 }
 
 /* ------------------------------------------------------------ detail drawer -- */
