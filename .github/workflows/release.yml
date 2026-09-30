@@ -131,8 +131,16 @@ jobs:
             printf 'See the [changelog](%s/blob/%s/CHANGELOG.md) for details.\n' \
               "$REPO" "$TAG" > "$notes"
           fi
+          # download-artifact keeps a directory per artifact, so a plain `artifacts/*`
+          # glob expands to directories and the upload fails. Collect the files.
+          mapfile -t files < <(find artifacts -type f | sort)
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo 'no build artifacts were produced' >&2
+            exit 1
+          fi
+          printf 'uploading %d files\n' "${#files[@]}"
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" artifacts/* --clobber
+            gh release upload "$TAG" "${files[@]}" --clobber
           else
-            gh release create "$TAG" --title "Tasma $TAG" --notes-file "$notes" artifacts/*
+            gh release create "$TAG" --title "Tasma $TAG" --notes-file "$notes" "${files[@]}"
           fi
