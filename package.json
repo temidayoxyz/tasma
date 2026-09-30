@@ -2,7 +2,7 @@
   "name": "tasma",
   "private": true,
   "type": "module",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Tasma - a Wisp-inspired system monitor and task manager for Windows.",
   "scripts": {
     "start": "cargo run --manifest-path src-tauri/Cargo.toml",
