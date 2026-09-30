@@ -39,6 +39,7 @@ of the way until you ask for it.
 ## Features
 
 **Sampling**
+
 - CPU total, per-logical-processor, clock, load average, and per-process share
 - GPU adapter load and per-engine utilisation (DXGI on Windows)
 - Physical memory, pagefile, and the honest caveat that summing working sets
