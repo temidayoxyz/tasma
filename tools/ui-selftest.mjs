@@ -37,9 +37,32 @@ import {
   virtualWindow,
 } from "../dist/table.js";
 import { mockDetail, mockReset, mockSnapshot } from "../dist/api.js";
+import { THEMES, describe, nextTheme, resolve } from "../dist/theme.js";
 
 const tests = [];
 const test = (name, run) => tests.push({ name, run });
+
+/* ----------------------------------------------------------------- theme -- */
+
+test("the theme button cycles system -> light -> dark", () => {
+  assert.deepEqual(THEMES, ["system", "light", "dark"]);
+  assert.equal(nextTheme("system"), "light");
+  assert.equal(nextTheme("light"), "dark");
+  assert.equal(nextTheme("dark"), "system", "the cycle comes back to the system setting");
+});
+
+test("only the system preference defers to the operating system", () => {
+  assert.equal(resolve("light"), "light");
+  assert.equal(resolve("dark"), "dark");
+  // With no media query available (Node), the fallback is dark, not a crash.
+  assert.ok(["light", "dark"].includes(resolve("system")));
+});
+
+test("the tooltip says what the next press will do", () => {
+  assert.match(describe("system"), /^Theme: system \(/);
+  assert.match(describe("light"), /click for dark/);
+  assert.match(describe("dark"), /click for system/);
+});
 
 /* ---------------------------------------------------------------- format -- */
 
@@ -288,3 +311,5 @@ for (const { name, run } of tests) {
 
 console.log(`\nui-selftest: ${tests.length - failures}/${tests.length} passed`);
 process.exit(failures === 0 ? 0 : 1);
+
+
