@@ -1,0 +1,46 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Tasma",
+  "version": "0.1.0",
+  "identifier": "dev.tasma.desktop",
+  "build": {
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "label": "main",
+        "title": "Tasma",
+        "url": "index.html",
+        "width": 1180,
+        "height": 820,
+        "minWidth": 700,
+        "minHeight": 520,
+        "center": true,
+        "resizable": true,
+        "decorations": false,
+        "transparent": false,
+        "shadow": true,
+        "theme": "Dark",
+        "backgroundColor": "#0A0A0C",
+        "skipTaskbar": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src ipc: http://ipc.localhost"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.ico"],
+    "windows": {
+      "nsis": {
+        "installMode": "currentUser"
+      }
+    },
+    "shortDescription": "A Wisp-inspired system monitor and task manager",
+    "longDescription": "Tasma is a fast, focused system monitor and task manager for Windows: live CPU, memory, disk, network and GPU telemetry plus a full process workbench (end task, suspend, priority, efficiency mode)."
+  }
+}
