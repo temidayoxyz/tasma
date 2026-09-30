@@ -84,6 +84,75 @@
   --status-h: 34px;
 }
 
+/* ------------------------------------------------------------------ light --
+   One block, because every colour above is a token. Accents are darkened for
+   contrast on a light background; surfaces become ink tints on near-white. */
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #eceef3;
+  --bg-glow-a: rgba(61, 220, 161, 0.07);
+  --bg-glow-b: rgba(139, 92, 246, 0.07);
+  --bg-glow-c: rgba(91, 141, 239, 0.05);
+
+  --panel: rgba(15, 18, 28, 0.03);
+  --panel-hover: rgba(15, 18, 28, 0.055);
+  --panel-solid: #ffffff;
+  --line: rgba(15, 18, 28, 0.1);
+  --line-strong: rgba(15, 18, 28, 0.17);
+
+  --surface-0: rgba(15, 18, 28, 0.018);
+  --surface-1: rgba(15, 18, 28, 0.03);
+  --surface-2: rgba(15, 18, 28, 0.055);
+  --surface-3: rgba(15, 18, 28, 0.09);
+  --surface-4: rgba(15, 18, 28, 0.18);
+  --card-top: rgba(255, 255, 255, 0.92);
+  --card-bottom: rgba(255, 255, 255, 0.62);
+  --card-edge: rgba(255, 255, 255, 0.85);
+  --overlay: rgba(255, 255, 255, 0.985);
+  --overlay-solid: #ffffff;
+  --scrim: rgba(22, 25, 35, 0.32);
+  --thead: rgba(255, 255, 255, 0.93);
+  --meter: rgba(15, 18, 28, 0.08);
+  --meter-dot: rgba(15, 18, 28, 0.14);
+  --row-line: rgba(15, 18, 28, 0.05);
+  --selected-bg: rgba(37, 99, 235, 0.12);
+  --self-bg: rgba(15, 155, 108, 0.09);
+  --on-accent: #10121a;
+  --scroll-thumb: rgba(15, 18, 28, 0.2);
+  --scroll-thumb-hover: rgba(15, 18, 28, 0.32);
+
+  --text: #14161d;
+  --text-dim: #4c5261;
+  --text-faint: #767d8d;
+
+  --green: #0d9568;
+  --teal: #0d8f86;
+  --violet: #6a35dd;
+  --pink: #c92a7d;
+  --amber: #a15c07;
+  --red: #d33538;
+  --blue: #2563eb;
+
+  --tone-green-from: #14a97c;
+  --tone-green-to: #0d9568;
+  --tone-green-hot: #b45309;
+  --tone-violet-from: #7c4aef;
+  --tone-violet-to: #6a35dd;
+  --tone-violet-hot: #c92a7d;
+  --tone-blue-from: #3b82f6;
+  --tone-blue-to: #2563eb;
+  --tone-blue-hot: #6a35dd;
+  --tone-amber-from: #d98a08;
+  --tone-amber-to: #a15c07;
+  --tone-amber-hot: #d33538;
+  --dot-faint: rgba(15, 18, 28, 0.12);
+  --donut-track: rgba(15, 18, 28, 0.09);
+
+  --shadow: 0 18px 40px rgba(20, 24, 40, 0.13);
+  --shadow-soft: 0 6px 18px rgba(20, 24, 40, 0.07);
+}
+
 * { box-sizing: border-box; }
 
 html, body { height: 100%; margin: 0; overflow: hidden; }
