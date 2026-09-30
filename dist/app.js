@@ -10,6 +10,7 @@
 
 import { api, appInfo, isDesktop, mockAction, mockSnapshot } from "./api.js";
 import { refreshPalette } from "./charts.js";
+import { openMenu } from "./menu.js";
 import { processesView } from "./processes.js";
 import { DATA_VIEWS, HEAD, escapeHtml, setText } from "./views.js";
 import { createTheme, describe } from "./theme.js";
@@ -24,6 +25,15 @@ const VIEWS = {
   disk: DATA_VIEWS.disk,
 };
 
+/** Menu icons, so the compact view picker reads the same as the tab bar. */
+const VIEW_ICONS = {
+  overview: "system",
+  processes: "layers",
+  cpu: "cpu",
+  memory: "memory",
+  network: "network",
+  disk: "disk",
+};
 
 const state = {
   view: "overview",
@@ -301,6 +311,26 @@ function cycleTheme() {
   repaintForTheme();
 }
 
+/**
+ * Compact mode has no room for the tab bar, so the views move into this menu. It is
+ * the same menu component the process table uses.
+ */
+function openViewsMenu(anchor) {
+  const items = Object.entries(VIEWS).map(([name, view]) => ({
+    label: view.title,
+    icon: VIEW_ICONS[name],
+    checked: name === state.view,
+    run: () => activate(name),
+  }));
+
+  anchor.setAttribute("aria-expanded", "true");
+  openMenu({
+    items,
+    heading: "Go to",
+    anchor,
+    onClose: () => anchor.setAttribute("aria-expanded", "false"),
+  });
+}
 
 /* ------------------------------------------------------------------ chrome -- */
 
@@ -342,6 +372,7 @@ function wireChrome() {
     status("sampling…");
   });
   element("btn-theme").addEventListener("click", cycleTheme);
+  element("btn-views").addEventListener("click", (event) => openViewsMenu(event.currentTarget));
   element("btn-compact").addEventListener("click", toggleCompact);
   element("btn-elevate").addEventListener("click", () => relaunchElevated());
 
@@ -411,3 +442,4 @@ window.addEventListener("hashchange", () => {
 });
 
 boot();
+
