@@ -12,6 +12,7 @@ import { api, appInfo, isDesktop, mockAction, mockSnapshot } from "./api.js";
 import { refreshPalette } from "./charts.js";
 import { processesView } from "./processes.js";
 import { DATA_VIEWS, HEAD, escapeHtml, setText } from "./views.js";
+import { createTheme, describe } from "./theme.js";
 import * as fmt from "./format.js";
 
 const VIEWS = {
@@ -23,6 +24,7 @@ const VIEWS = {
   disk: DATA_VIEWS.disk,
 };
 
+
 const state = {
   view: "overview",
   intervalMs: 1000,
@@ -32,6 +34,7 @@ const state = {
   lastError: null,
   timer: null,
   ticks: 0,
+  theme: null,
 };
 
 /* --------------------------------------------------------------- services -- */
@@ -274,6 +277,31 @@ async function relaunchElevated() {
   }
 }
 
+/* ----------------------------------------------------------------- theme -- */
+
+/**
+ * Repaints everything that reads colours: the canvas palette, and every card whose
+ * charts were drawn before the theme changed.
+ */
+function repaintForTheme() {
+  refreshPalette();
+  if (!state.lastSnapshot) return;
+  for (const [name, viewState] of state.mounted) {
+    const section = document.querySelector(`.view[data-view="${name}"]`);
+    if (section && VIEWS[name]) VIEWS[name].update(section, state.lastSnapshot, viewState);
+  }
+}
+
+function cycleTheme() {
+  const preference = state.theme.cycle();
+  const label = describe(preference);
+  const button = element("btn-theme");
+  button.title = label;
+  button.setAttribute("aria-label", label);
+  repaintForTheme();
+}
+
+
 /* ------------------------------------------------------------------ chrome -- */
 
 function currentWindow() {
@@ -313,6 +341,7 @@ function wireChrome() {
     schedule();
     status("sampling…");
   });
+  element("btn-theme").addEventListener("click", cycleTheme);
   element("btn-compact").addEventListener("click", toggleCompact);
   element("btn-elevate").addEventListener("click", () => relaunchElevated());
 
@@ -352,6 +381,14 @@ async function boot() {
   state.intervalMs = Number.isFinite(saved) && saved >= 0 ? saved : 1000;
   state.paused = state.intervalMs === 0;
   select.value = String(state.intervalMs);
+
+  // Theme first: the charts read their colours from the resolved palette, so this has
+  // to happen before anything is rendered. It starts on the system setting and only
+  // moves off it if the user asks.
+  state.theme = createTheme({ onChange: repaintForTheme });
+  const themeLabel = describe(state.theme.preference);
+  element("btn-theme").title = themeLabel;
+  element("btn-theme").setAttribute("aria-label", themeLabel);
 
   wireChrome();
   state.info = await appInfo();
