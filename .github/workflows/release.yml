@@ -38,7 +38,10 @@ jobs:
             target: aarch64-apple-darwin
             bundles: dmg
           - label: macOS Intel (DMG)
-            os: macos-13
+            # macos-13 is being retired, so the Intel build cross-compiles from an
+            # Apple Silicon runner: the x86_64-apple-darwin std is installed by
+            # dtolnay/rust-toolchain and the binary is produced normally.
+            os: macos-14
             target: x86_64-apple-darwin
             bundles: dmg
           - label: Linux x64 (AppImage)
